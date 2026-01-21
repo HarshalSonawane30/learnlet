@@ -1,2 +1,11 @@
 .vercel
-.env*.local
+.env
+.env.local
+.env.*.local
+.env.production
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
+uploads/
