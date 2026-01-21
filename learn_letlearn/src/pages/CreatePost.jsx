@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Image as ImageIcon, Video, Type, Upload, ArrowLeft } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
+import apiClient from '../utils/apiClient';
 
 const CreatePost = () => {
   const navigate = useNavigate();
@@ -54,17 +55,15 @@ const CreatePost = () => {
         formData.append('media', media);
       }
 
-      const response = await fetch('http://localhost:5001/api/posts', {
-        method: 'POST',
+      const response = await apiClient.post('/api/posts', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
+      if (response.status === 201 || response.status === 200) {
         alert('Post created successfully!');
         // Reset form
         setContent('');

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, BookOpen, Users, Star, MapPin, Heart, MessageCircle, Share2, Send, Bookmark, MoreHorizontal, TrendingUp, Code, Database, Smartphone } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
+import apiClient, { getAPIUrl } from '../utils/apiClient';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -22,19 +23,10 @@ const Home = () => {
 
   const fetchSuggestions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+      const response = await apiClient.get('/api/users/suggestions');
 
-      const response = await fetch('http://localhost:5001/api/users/suggestions', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (response.data) {
+        const data = response.data;
         
         // Transform backend data to match frontend format
         const transformedSuggestions = data.suggestions?.map(user => ({
@@ -124,22 +116,11 @@ const Home = () => {
 
   const fetchPosts = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+      const response = await apiClient.get('/api/posts/feed');
 
-      const response = await fetch('http://localhost:5001/api/posts/feed', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (response.data) {
+        const data = response.data;
+        const apiUrl = getAPIUrl();
         
         // Transform backend data to match frontend format
         const transformedPosts = data.posts?.map(post => ({
@@ -151,7 +132,7 @@ const Home = () => {
             headline: post.userId?.bio || 'Member of Learn & Let Learn'
           },
           content: post.content,
-          image: post.mediaUrl ? (post.mediaUrl.startsWith('http') ? post.mediaUrl : `http://localhost:5001${post.mediaUrl}`) : null,
+          image: post.mediaUrl ? (post.mediaUrl.startsWith('http') ? post.mediaUrl : `${apiUrl}${post.mediaUrl}`) : null,
           mediaUrl: post.mediaUrl,
           timestamp: getTimeAgo(post.createdAt),
           likes: post.likes?.length || 0,

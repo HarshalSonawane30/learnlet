@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, BookOpen, GraduationCap, Users } from 'lucide-react';
+import apiClient from '../../utils/apiClient';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -61,26 +62,16 @@ const Register = () => {
     setError('');
 
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('http://localhost:5001/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await apiClient.post('/api/auth/register', formData);
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.status === 201 || response.status === 200) {
+        const data = response.data;
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/home');
-      } else {
-        setError(data.message || 'Registration failed');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

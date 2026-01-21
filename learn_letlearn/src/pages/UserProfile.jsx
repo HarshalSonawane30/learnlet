@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, Edit2, Trash2, X, Check, MapPin, Link, Calendar, Mail, Phone, Briefcase, Save } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
+import apiClient, { getAPIUrl } from '../utils/apiClient';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState({
@@ -59,28 +60,22 @@ export default function ProfilePage() {
 
   const fetchUserPosts = async () => {
     try {
-      const token = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
-      if (!token || !userData) return;
+      if (!userData) return;
 
       const user = JSON.parse(userData);
-      const response = await fetch(`http://localhost:5001/api/posts/feed`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiClient.get('/api/posts/feed');
 
-      if (response.ok) {
-        const data = await response.json();
+      if (response.data) {
+        const data = response.data;
         // Filter to only show current user's posts
         const userPosts = data.posts?.filter(post => post.userId?._id === user._id || post.userId?.id === user._id) || [];
         
         // Transform to match profile display format
+        const apiUrl = getAPIUrl();
         const transformedPosts = userPosts.map(post => ({
           id: post._id,
-          image: post.mediaUrl ? `http://localhost:5001${post.mediaUrl}` : null,
+          image: post.mediaUrl ? `${apiUrl}${post.mediaUrl}` : null,
           content: post.content,
           likes: post.likes?.length || 0,
           comments: post.comments?.length || 0,
