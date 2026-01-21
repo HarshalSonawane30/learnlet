@@ -24,15 +24,15 @@ import Navbar from './components/common/Navbar'
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('token');
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? children : <Navigate to="/register" replace />;
 };
 
 function AppContent() {
   return (
     <>
       <Routes>
-        {/* Default route → Login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Default route → Register (for new visitors) */}
+        <Route path="/" element={<Navigate to="/register" replace />} />
 
         {/* Auth Routes - Public */}
         <Route path="/login" element={<LoginPage />} />
